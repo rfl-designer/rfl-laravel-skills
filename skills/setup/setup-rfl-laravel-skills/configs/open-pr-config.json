@@ -1,0 +1,6 @@
+{
+  "base_branch": "main",
+  "auto_run_pint_fix": false,
+  "draft_on_todos": true,
+  "always_include_screenshots_section": false
+}

@@ -52,6 +52,7 @@ Para instalar a partir de um clone local sem passar pelo CLI universal:
 ## Fluxo
 
 ```
+/setup-rfl-laravel-skills  →  bootstrap one-shot (uma vez por repo)
 /grill-with-docs  →  CONTEXT.md + ADRs do que foi decidido
 /to-prd           →  docs/prd/<slug>.md + issue PRD no GitHub
 /to-issues        →  N issues vertical-slice no GitHub
@@ -66,6 +67,10 @@ Para instalar a partir de um clone local sem passar pelo CLI universal:
 ```
 
 ## Skills
+
+### Setup (`skills/setup/`) — rode primeiro
+
+- **[setup-rfl-laravel-skills](./skills/setup/setup-rfl-laravel-skills/SKILL.md)** — valida pré-requisitos (gh, Pest, Pint, boost), cria `docs/` tree, semeia configs em `.claude/`, adiciona bloco `## Agent skills` em `CLAUDE.md`/`AGENTS.md`. Idempotente — re-rodar é seguro.
 
 ### Process (`skills/process/`)
 
@@ -98,8 +103,9 @@ Sprint A ✅ fundação (Etapas 0, 1, 4) — `grill-with-docs`, `tdd`.
 Sprint B ✅ planejamento (Etapas 2, 3) — `to-prd`, `to-issues`.
 Sprint C ✅ entrega (Etapas 5, 6, 7) — `open-pr`, `simplify`, `review-branch` + 4 agents.
 Sprint D ✅ manutenção (Etapas 8, 9) — `organize-docs`, `update-roadmap`.
+Bootstrap ✅ `setup-rfl-laravel-skills` — one-shot por repo.
 
-**Plugin completo.** As 9 etapas do PLAN.md estão implementadas.
+**Plugin completo.** 10 skills + 4 agents. As 9 etapas do PLAN.md estão implementadas.
 
 Veja [PLAN.md](../PLAN.md) para detalhes.
 

@@ -2,13 +2,14 @@
 
 Este repo é o plugin Claude Code `rfl-laravel-skills`. Skills são organizadas em buckets sob `skills/`:
 
+- `setup/` — bootstrap one-shot do plugin no projeto consumidor (`setup-rfl-laravel-skills`)
 - `process/` — workflow de desenvolvimento (grill, prd, issues, tdd, pr)
 - `laravel/` — wrappers que disparam agents do diretório `agents/` (simplifier, reviewers)
 - `docs/` — manutenção da documentação do projeto consumidor (organize-docs, update-roadmap)
 
 ## Regras
 
-1. Toda skill em `process/`, `laravel/` ou `docs/` precisa de:
+1. Toda skill em `setup/`, `process/`, `laravel/` ou `docs/` precisa de:
    - Entrada no `README.md` do bucket (link `nome → SKILL.md`).
    - Entrada no `README.md` do root (link `nome → SKILL.md`).
    - Entrada em `.claude-plugin/plugin.json` (lista `skills`).

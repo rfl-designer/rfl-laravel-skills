@@ -1,0 +1,10 @@
+{
+  "title": "Roadmap",
+  "subtitle": "",
+  "label": "roadmap",
+  "include_closed": false,
+  "max_waves": null,
+  "theme": "auto",
+  "output_path": "docs/roadmap/index.html",
+  "wave_names": {}
+}

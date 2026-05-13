@@ -1,0 +1,13 @@
+{
+  "window_days": 30,
+  "skip_adr_suggestions": false,
+  "skip_term_suggestions": false,
+  "auto_archive_prds": false,
+  "context_md_path": "CONTEXT.md",
+  "domain_class_paths": [
+    "app/Models",
+    "app/Enums",
+    "app/Events",
+    "app/Actions"
+  ]
+}
