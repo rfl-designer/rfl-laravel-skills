@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .badge { transition: all 150ms ease; }
+    .badge:hover { transform: translateY(-1px); }
+    .card { transition: border-color 150ms ease, transform 150ms ease; }
+    .card:hover { transform: translateY(-2px); }
+    .card:target { animation: highlight 1.5s ease; }
+    @keyframes highlight {
+      0%   { box-shadow: 0 0 0 4px rgb(59 130 246 / 0.5); }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
+  </style>
+</head>
+<body class="bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans antialiased">
+
+  <header class="border-b border-zinc-200 dark:border-zinc-800">
+    <div class="max-w-7xl mx-auto px-6 py-12">
+      <h1 class="text-4xl font-bold tracking-tight">{{TITLE}}</h1>
+      <p class="mt-2 text-lg text-zinc-600 dark:text-zinc-400">{{SUBTITLE}}</p>
+      <div class="mt-6 flex gap-6 text-sm text-zinc-500 dark:text-zinc-400">
+        <span><strong class="text-zinc-900 dark:text-zinc-100">{{TOTAL_ISSUES}}</strong> issues</span>
+        <span>Gerado em {{GENERATED_AT}}</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-12 space-y-16">
+    {{WAVES_HTML}}
+  </main>
+
+  <footer class="border-t border-zinc-200 dark:border-zinc-800 mt-16">
+    <div class="max-w-7xl mx-auto px-6 py-6 text-sm text-zinc-500 dark:text-zinc-400">
+      Gerado por <code class="text-xs bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded">/update-roadmap</code> &middot;
+      <a href="https://github.com/rfl-designer/rfl-laravel-skills" class="underline hover:text-zinc-700 dark:hover:text-zinc-200">rfl-laravel-skills</a>
+    </div>
+  </footer>
+
+</body>
+</html>
+
+<!--
+================================================================================
+TEMPLATES DE WAVE E CARD — usados pelo gerador para popular {{WAVES_HTML}}
+================================================================================
+
+WAVE TEMPLATE:
+
+<section class="wave" id="wave-{N}">
+  <header class="flex items-baseline justify-between mb-6">
+    <h2 class="text-2xl font-semibold">Onda {N}{NAME_SUFFIX}</h2>
+    <span class="text-sm text-zinc-500 dark:text-zinc-400">
+      {COUNT} issues paralelas
+    </span>
+  </header>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+    {CARDS}
+  </div>
+</section>
+
+CARD TEMPLATE:
+
+<article
+  class="card flex flex-col bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 hover:border-zinc-400 dark:hover:border-zinc-600"
+  id="issue-{NUMBER}">
+  <header class="flex items-start gap-2 mb-3">
+    <span class="text-xs font-mono text-zinc-500 dark:text-zinc-400 mt-0.5">#{NUMBER}</span>
+    <h3 class="flex-1 font-semibold leading-tight">{TITLE}</h3>
+    {LABEL_PILL}
+  </header>
+  <p class="flex-1 text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
+    {USER_IMPACT}
+  </p>
+  <footer class="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-2 text-xs">
+    {DEPS_BLOCK}
+  </footer>
+</article>
+
+LABEL PILL (opcional):
+
+<span class="text-xs px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+  {LABEL}
+</span>
+
+DEPS BLOCK — quando há dependências:
+
+<span class="text-zinc-500 dark:text-zinc-400">Depende de:</span>
+{for each dep:}
+<a href="#issue-{DEP}" class="badge inline-flex items-center px-2 py-0.5 rounded font-mono bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900">
+  #{DEP}
+</a>
+{end for}
+
+DEPS BLOCK — quando não há dependências:
+
+<span class="text-zinc-400 dark:text-zinc-500 italic">sem dependências</span>
+
+DEPS BLOCK — issue fechada (when include_closed:true):
+
+<span class="text-emerald-600 dark:text-emerald-400 font-medium">✅ entregue</span>
+================================================================================
+-->

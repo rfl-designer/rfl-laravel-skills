@@ -1,0 +1,20 @@
+{
+  "name": "rfl-laravel-skills",
+  "skills": [
+    "./skills/process/grill-with-docs",
+    "./skills/process/to-prd",
+    "./skills/process/to-issues",
+    "./skills/process/tdd",
+    "./skills/process/open-pr",
+    "./skills/laravel/simplify-with-agent",
+    "./skills/laravel/review-branch",
+    "./skills/docs/organize-docs",
+    "./skills/docs/update-roadmap"
+  ],
+  "agents": [
+    "./agents/laravel-simplifier.md",
+    "./agents/laravel-reviewer.md",
+    "./agents/livewire-flux-reviewer.md",
+    "./agents/pest-test-writer.md"
+  ]
+}

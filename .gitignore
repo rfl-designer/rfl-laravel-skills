@@ -1,0 +1,11 @@
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Local config consumido pelas skills no projeto, não pertence ao plugin
+.claude/
+.scratch/
+
+# Saída temporária
+/tmp/
