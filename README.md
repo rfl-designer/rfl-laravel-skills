@@ -6,11 +6,27 @@ Trabalha em conjunto com [`laravel/boost`](https://github.com/laravel/boost) —
 
 ## Quickstart
 
+Via [skills.sh](https://skills.sh) CLI (Claude Code, Codex, Cursor, OpenCode e outros):
+
 ```bash
-npx skills@latest add rfl-designer/rfl-laravel-skills
+# Instala todas as 9 skills no projeto atual
+npx skills add rfl-designer/rfl-laravel-skills
+
+# Ou instalar globalmente
+npx skills add rfl-designer/rfl-laravel-skills -g
+
+# Ou listar antes de instalar
+npx skills add rfl-designer/rfl-laravel-skills --list
+
+# Ou instalar só algumas
+npx skills add rfl-designer/rfl-laravel-skills --skill tdd --skill open-pr
 ```
 
-(durante o desenvolvimento, instale via path local: `/plugin install /caminho/para/rfl-laravel-skills`)
+Via Claude Code nativo (path local):
+
+```
+/plugin install /caminho/para/rfl-laravel-skills
+```
 
 ## Fluxo
 
