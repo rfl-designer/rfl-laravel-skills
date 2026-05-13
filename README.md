@@ -4,6 +4,21 @@ Plugin Claude Code que orquestra o ciclo de desenvolvimento **Laravel 12 + Livew
 
 Trabalha em conjunto com [`laravel/boost`](https://github.com/laravel/boost) — o boost fornece guidelines de stack (versões, padrões idiomáticos), este plugin fornece o **processo** (grilling, PRDs, issues, TDD, reviews, roadmap).
 
+## Atualização
+
+Como o plugin instala skills + agents, a atualização tem nuances:
+
+| O que atualizar | Comando |
+|---|---|
+| Tudo (Caminho A — `/plugin install`) | `cd <plugin-path> && git pull` |
+| Skills (Caminho B — `npx skills`) | `npx skills update` (todas) ou `npx skills update tdd open-pr` (por nome) |
+| Agents (qualquer caminho) | `cd ~/.local/share/rfl-laravel-skills && git pull` (se symlinkados pelo setup) |
+| Re-validar configs/symlinks | `/setup-rfl-laravel-skills` (idempotente) |
+
+> ⚠️ `npx skills update <nome>` recebe o **nome da skill** (do frontmatter, ex: `tdd`, `open-pr`), não o nome do repo (`rfl-laravel-skills`). Para listar nomes instalados: `npx skills list`.
+>
+> ⚠️ Se também usa `mattpocock/skills`, os nomes `grill-with-docs` e `tdd` colidem (mesmo `name:` no frontmatter). A última instalada ganha. Para forçar a versão deste plugin: `npx skills remove tdd && npx skills add rfl-designer/rfl-laravel-skills --skill tdd`.
+
 ## Instalação
 
 Você tem **dois caminhos** com trade-offs claros. Escolha conforme seu cenário:
