@@ -33,6 +33,9 @@ Em paralelo, verificar:
 | `CONTEXT.md`? | `ls CONTEXT.md` |
 | `docs/` tree? | `ls docs/` |
 | `.claude/` configs? | `ls .claude/*.json` |
+| Plugin instalado via `/plugin install`? | `ls ~/.claude/plugins/` ou config do Claude Code |
+| Skills em `.claude/skills/`? | `ls .claude/skills/ ~/.claude/skills/` |
+| Agents em `.claude/agents/`? | `ls .claude/agents/ ~/.claude/agents/` |
 
 Apresentar resumo no formato:
 
@@ -138,12 +141,64 @@ Apresentar os 3 configs lado a lado (ver templates em [`configs/`](./configs/)):
 
 Para `roadmap-config.json`, **perguntar título e subtítulo** — o resto pode ficar default.
 
-#### Seção E — `.gitignore`
+#### Seção E — Instalação dos agents
+
+> Os 5 agents do plugin (`laravel-simplifier`, `laravel-reviewer`, `livewire-flux-reviewer`, `pest-test-writer`, `pr-spec-reviewer`) precisam estar em `.claude/agents/` (project) ou `~/.claude/agents/` (global) para o Claude Code reconhecer.
+>
+> Se você instalou via `/plugin install <path>`, agents já estão registrados — **pule esta seção**.
+>
+> Se você instalou via `npx skills add` (universal), só as skills foram copiadas — agents precisam ser linkados manualmente.
+
+Detectar:
+- Existe `~/.claude/plugins/rfl-laravel-skills/` ou similar? (instalado como plugin) → pular
+- Existem os 5 agents em `.claude/agents/` ou `~/.claude/agents/`? → pular
+- Senão → oferecer instalar
+
+Se for instalar, perguntar:
+- **Escopo**: project (`.claude/agents/`) ou global (`~/.claude/agents/`)?
+- **Método**: symlink (recomendado, atualiza junto com `git pull` no clone) ou copy?
+
+Precisa do **path do clone local** do plugin. Se o usuário não tiver, sugerir:
+```bash
+git clone https://github.com/rfl-designer/rfl-laravel-skills.git ~/plugins/rfl-laravel-skills
+```
+
+Aplicar:
+```bash
+# symlink global
+mkdir -p ~/.claude/agents
+ln -sf <PLUGIN_PATH>/agents/*.md ~/.claude/agents/
+
+# OU symlink project
+mkdir -p .claude/agents
+ln -sf <PLUGIN_PATH>/agents/*.md .claude/agents/
+
+# OU cópia (se symlink não for opção)
+cp <PLUGIN_PATH>/agents/*.md ~/.claude/agents/
+```
+
+Confirmar via `ls .claude/agents/` que os 5 arquivos estão lá.
+
+#### Seção F — `.gitignore`
 
 Verificar se `.gitignore` ignora `.claude/` (configs locais) ou se a intenção é versionar (compartilhar com time). Perguntar:
 
 - **Ignorar `.claude/`** — cada dev configura o próprio. Default se você trabalha solo.
-- **Versionar `.claude/`** — time inteiro usa os mesmos configs. Default se equipe >1.
+- **Versionar `.claude/`** — time inteiro usa os mesmos configs e agents. Default se equipe >1.
+
+Se versionar, recomendar versionar `.claude/agents/` e `.claude/skills/` (se project-scope) **mas ignorar** caches/state como `.claude/last-organize-docs`, `.claude/inferred-deps.json`. Sugerir `.gitignore`:
+
+```
+# Versionar
+!.claude/
+!.claude/agents/
+!.claude/skills/
+!.claude/*-config.json
+
+# Mas ignorar state local
+.claude/last-organize-docs
+.claude/inferred-deps.json
+```
 
 ### 4. Atualizar AGENTS.md ou CLAUDE.md com bloco Agent skills
 

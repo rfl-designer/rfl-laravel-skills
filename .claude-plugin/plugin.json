@@ -8,7 +8,7 @@
     "./skills/process/tdd",
     "./skills/process/open-pr",
     "./skills/laravel/simplify-with-agent",
-    "./skills/laravel/review-branch",
+    "./skills/laravel/review-pr",
     "./skills/docs/organize-docs",
     "./skills/docs/update-roadmap"
   ],
@@ -16,6 +16,7 @@
     "./agents/laravel-simplifier.md",
     "./agents/laravel-reviewer.md",
     "./agents/livewire-flux-reviewer.md",
-    "./agents/pest-test-writer.md"
+    "./agents/pest-test-writer.md",
+    "./agents/pr-spec-reviewer.md"
   ]
 }

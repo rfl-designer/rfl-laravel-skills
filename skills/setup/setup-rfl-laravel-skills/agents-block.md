@@ -52,8 +52,8 @@ Configurações em `.claude/*.json` e `docs/`.
 | `/to-issues` | Quebrar PRD em slices verticais (4 camadas) |
 | `/tdd` | Red-green-refactor com Pest |
 | `/simplify` | Refatorar diff não-commitado (gated por Pest verde) |
-| `/review-branch` | 3 reviewers em paralelo (Laravel + Livewire/Flux + Pest) |
 | `/open-pr` | Abrir PR com título derivado de Conventional Commits |
+| `/review-pr` | 4 reviewers em paralelo: Laravel + Livewire/Flux + Pest + spec compliance vs issue |
 | `/organize-docs` | Varredura interativa de docs pós-PRs |
 | `/update-roadmap` | Gerar `docs/roadmap/index.html` por ondas |
 ```

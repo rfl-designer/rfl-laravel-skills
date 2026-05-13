@@ -4,11 +4,28 @@ Plugin Claude Code que orquestra o ciclo de desenvolvimento **Laravel 12 + Livew
 
 Trabalha em conjunto com [`laravel/boost`](https://github.com/laravel/boost) — o boost fornece guidelines de stack (versões, padrões idiomáticos), este plugin fornece o **processo** (grilling, PRDs, issues, TDD, reviews, roadmap).
 
-## Quickstart
+## Instalação
 
-Via [skills.sh](https://skills.sh) CLI (funciona com Claude Code, Codex, Cursor, OpenCode e outros).
+Você tem **dois caminhos** com trade-offs claros. Escolha conforme seu cenário:
 
-### Modo interativo recomendado
+### Caminho A — Claude Code nativo via `/plugin install` (recomendado para Claude Code)
+
+Pega tudo: **10 skills + 5 agents** em uma única operação. Necessário porque a CLI universal (caminho B) só lida com skills, não com agents.
+
+```
+git clone https://github.com/rfl-designer/rfl-laravel-skills.git ~/plugins/rfl-laravel-skills
+```
+
+No Claude Code:
+```
+/plugin install ~/plugins/rfl-laravel-skills
+```
+
+O Claude Code lê `.claude-plugin/plugin.json` e registra skills + agents simultaneamente. Atualiza com `git pull` no clone.
+
+### Caminho B — `npx skills add` (universal, multi-agent)
+
+Funciona com Claude Code, Codex, Cursor, OpenCode e outros. **Limitação:** instala apenas as 10 skills em `.claude/skills/`. **Os 5 agents precisam ser copiados manualmente** para `.claude/agents/` (a CLI universal ainda não suporta agents).
 
 Abra um terminal **normal** (fora do Claude Code/Codex) e rode:
 
@@ -17,36 +34,42 @@ npx skills add rfl-designer/rfl-laravel-skills
 ```
 
 A CLI vai perguntar:
-
 1. **Escopo** — Project (`./.claude/skills/`) ou Global (`~/.claude/skills/`)
-2. **Quais skills** instalar (use espaço pra marcar, enter pra confirmar)
-3. **Quais agents** instalar (claude-code, codex, cursor, opencode, etc.)
+2. **Quais skills** instalar
+3. **Quais agents-target** (claude-code, codex, cursor, opencode, etc.)
 4. **Método** — symlink (recomendado) ou copy
 
-> ⚠️ Quando rodado **de dentro** de um agent (ex.: o próprio Claude Code), a CLI detecta o ambiente e instala não-interativamente. Para ver o prompt de escopo, abra um terminal externo.
+> ⚠️ Quando rodado **de dentro** de um agent (ex.: o próprio Claude Code), a CLI detecta o ambiente e instala não-interativamente. Para o prompt interativo, use terminal externo.
 
-### Flags úteis (modo direto)
+Para os 5 agents Claude Code, faça um clone separado e symlink:
 
 ```bash
-# Instala global, todas as skills, sem perguntar
+# Global (todos os projetos veem)
+git clone https://github.com/rfl-designer/rfl-laravel-skills.git ~/plugins/rfl-laravel-skills
+mkdir -p ~/.claude/agents
+ln -sf ~/plugins/rfl-laravel-skills/agents/*.md ~/.claude/agents/
+
+# OU project-local (.claude/ no projeto)
+mkdir -p .claude/agents
+ln -sf ~/plugins/rfl-laravel-skills/agents/*.md .claude/agents/
+```
+
+Ou use `/setup-rfl-laravel-skills` no Claude Code — a skill detecta esse cenário e oferece copiar os agents para você.
+
+### Flags úteis da CLI (caminho B)
+
+```bash
+# Tudo, sem perguntar
 npx skills add rfl-designer/rfl-laravel-skills -g --all
 
-# Instala só algumas skills no projeto atual
+# Só algumas skills
 npx skills add rfl-designer/rfl-laravel-skills --skill tdd --skill open-pr
 
-# Lista as skills disponíveis sem instalar nada
+# Só listar
 npx skills add rfl-designer/rfl-laravel-skills --list
 
-# Instala em agent específico
+# Agent específico
 npx skills add rfl-designer/rfl-laravel-skills -a claude-code -g
-```
-
-### Via Claude Code nativo (path local)
-
-Para instalar a partir de um clone local sem passar pelo CLI universal:
-
-```
-/plugin install /caminho/para/rfl-laravel-skills
 ```
 
 ## Fluxo
@@ -59,8 +82,8 @@ Para instalar a partir de um clone local sem passar pelo CLI universal:
 (escolher uma)
 /tdd              →  red-green-refactor em Pest, slice completa
 /simplify         →  laravel-simplifier passa sobre o diff
-/review-branch    →  3 reviewers em paralelo, checklist consolidado
 /open-pr          →  PR no GitHub, linkada à issue
+/review-pr        →  4 reviewers em paralelo (Laravel + Livewire/Flux + Pest + spec vs issue)
 (PR merged)
 /organize-docs    →  ADRs propostos, glossário atualizado
 /update-roadmap   →  docs/roadmap/index.html atualizado por ondas
@@ -83,7 +106,7 @@ Para instalar a partir de um clone local sem passar pelo CLI universal:
 ### Laravel (`skills/laravel/`)
 
 - **[simplify](./skills/laravel/simplify-with-agent/SKILL.md)** — invoca `laravel-simplifier` sobre o diff não-commitado.
-- **[review-branch](./skills/laravel/review-branch/SKILL.md)** — dispara 3 reviewers em paralelo e consolida.
+- **[review-pr](./skills/laravel/review-pr/SKILL.md)** — dispara 4 reviewers em paralelo (incluindo spec compliance vs issue) e consolida.
 
 ### Docs (`skills/docs/`)
 
@@ -96,6 +119,7 @@ Para instalar a partir de um clone local sem passar pelo CLI universal:
 - **[laravel-reviewer](./agents/laravel-reviewer.md)** — revisa Application/Persistence: N+1, validação, autorização, container, migrations.
 - **[livewire-flux-reviewer](./agents/livewire-flux-reviewer.md)** — revisa Livewire 4 + Flux + Alpine + Tailwind + a11y.
 - **[pest-test-writer](./agents/pest-test-writer.md)** — revisa qualidade dos testes Pest; pode escrever testes sob demanda.
+- **[pr-spec-reviewer](./agents/pr-spec-reviewer.md)** — compara PR com acceptance criteria das issues fechadas: cobertura, scope creep, spec drift, missing artifacts.
 
 ## Status
 
