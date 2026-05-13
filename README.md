@@ -6,23 +6,44 @@ Trabalha em conjunto com [`laravel/boost`](https://github.com/laravel/boost) —
 
 ## Quickstart
 
-Via [skills.sh](https://skills.sh) CLI (Claude Code, Codex, Cursor, OpenCode e outros):
+Via [skills.sh](https://skills.sh) CLI (funciona com Claude Code, Codex, Cursor, OpenCode e outros).
+
+### Modo interativo recomendado
+
+Abra um terminal **normal** (fora do Claude Code/Codex) e rode:
 
 ```bash
-# Instala todas as 9 skills no projeto atual
 npx skills add rfl-designer/rfl-laravel-skills
-
-# Ou instalar globalmente
-npx skills add rfl-designer/rfl-laravel-skills -g
-
-# Ou listar antes de instalar
-npx skills add rfl-designer/rfl-laravel-skills --list
-
-# Ou instalar só algumas
-npx skills add rfl-designer/rfl-laravel-skills --skill tdd --skill open-pr
 ```
 
-Via Claude Code nativo (path local):
+A CLI vai perguntar:
+
+1. **Escopo** — Project (`./.claude/skills/`) ou Global (`~/.claude/skills/`)
+2. **Quais skills** instalar (use espaço pra marcar, enter pra confirmar)
+3. **Quais agents** instalar (claude-code, codex, cursor, opencode, etc.)
+4. **Método** — symlink (recomendado) ou copy
+
+> ⚠️ Quando rodado **de dentro** de um agent (ex.: o próprio Claude Code), a CLI detecta o ambiente e instala não-interativamente. Para ver o prompt de escopo, abra um terminal externo.
+
+### Flags úteis (modo direto)
+
+```bash
+# Instala global, todas as skills, sem perguntar
+npx skills add rfl-designer/rfl-laravel-skills -g --all
+
+# Instala só algumas skills no projeto atual
+npx skills add rfl-designer/rfl-laravel-skills --skill tdd --skill open-pr
+
+# Lista as skills disponíveis sem instalar nada
+npx skills add rfl-designer/rfl-laravel-skills --list
+
+# Instala em agent específico
+npx skills add rfl-designer/rfl-laravel-skills -a claude-code -g
+```
+
+### Via Claude Code nativo (path local)
+
+Para instalar a partir de um clone local sem passar pelo CLI universal:
 
 ```
 /plugin install /caminho/para/rfl-laravel-skills
