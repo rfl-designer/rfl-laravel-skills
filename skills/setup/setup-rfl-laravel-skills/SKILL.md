@@ -141,43 +141,96 @@ Apresentar os 3 configs lado a lado (ver templates em [`configs/`](./configs/)):
 
 Para `roadmap-config.json`, **perguntar título e subtítulo** — o resto pode ficar default.
 
-#### Seção E — Instalação dos agents
+#### Seção E — Instalar os agents em `.claude/agents/`
 
-> Os 5 agents do plugin (`laravel-simplifier`, `laravel-reviewer`, `livewire-flux-reviewer`, `pest-test-writer`, `pr-spec-reviewer`) precisam estar em `.claude/agents/` (project) ou `~/.claude/agents/` (global) para o Claude Code reconhecer.
->
-> Se você instalou via `/plugin install <path>`, agents já estão registrados — **pule esta seção**.
->
-> Se você instalou via `npx skills add` (universal), só as skills foram copiadas — agents precisam ser linkados manualmente.
+> Os 5 agents do plugin (`laravel-simplifier`, `laravel-reviewer`, `livewire-flux-reviewer`, `pest-test-writer`, `pr-spec-reviewer`) precisam estar em `.claude/agents/` (project) ou `~/.claude/agents/` (global) para o Claude Code reconhecer. A CLI `npx skills add` não copia agents — esta seção resolve isso automaticamente.
 
-Detectar:
-- Existe `~/.claude/plugins/rfl-laravel-skills/` ou similar? (instalado como plugin) → pular
-- Existem os 5 agents em `.claude/agents/` ou `~/.claude/agents/`? → pular
-- Senão → oferecer instalar
+**Esta seção EXECUTA a instalação. Não só sugere comandos.**
 
-Se for instalar, perguntar:
-- **Escopo**: project (`.claude/agents/`) ou global (`~/.claude/agents/`)?
-- **Método**: symlink (recomendado, atualiza junto com `git pull` no clone) ou copy?
+##### Passo 1 — Verificar se já está instalado
 
-Precisa do **path do clone local** do plugin. Se o usuário não tiver, sugerir:
 ```bash
-git clone https://github.com/rfl-designer/rfl-laravel-skills.git ~/plugins/rfl-laravel-skills
+ls .claude/agents/laravel-simplifier.md ~/.claude/agents/laravel-simplifier.md 2>/dev/null
 ```
 
-Aplicar:
+Se algum dos 5 agents já existe em qualquer um dos dois paths:
+```
+✅ Agents já estão instalados em <path>. Pulando.
+```
+e ir para a Seção F.
+
+##### Passo 2 — Localizar (ou criar) o clone do plugin
+
+Procurar `rfl-laravel-skills` em locais conhecidos, em ordem:
+
+1. `.claude/plugin-source` (se setup foi rodado antes — arquivo registra path)
+2. `~/.local/share/rfl-laravel-skills`
+3. `~/plugins/rfl-laravel-skills`
+4. `~/Code/rfl-laravel-skills` e variantes
+5. `npx skills` cache (verificar `~/.cache/skills/` ou similar — não confiável)
+
+Se não encontrar, **clonar diretamente** num path estável:
+
 ```bash
-# symlink global
-mkdir -p ~/.claude/agents
-ln -sf <PLUGIN_PATH>/agents/*.md ~/.claude/agents/
-
-# OU symlink project
-mkdir -p .claude/agents
-ln -sf <PLUGIN_PATH>/agents/*.md .claude/agents/
-
-# OU cópia (se symlink não for opção)
-cp <PLUGIN_PATH>/agents/*.md ~/.claude/agents/
+mkdir -p ~/.local/share
+git clone --depth 1 https://github.com/rfl-designer/rfl-laravel-skills.git ~/.local/share/rfl-laravel-skills
 ```
 
-Confirmar via `ls .claude/agents/` que os 5 arquivos estão lá.
+Confirmar com o usuário antes de clonar:
+```
+Não encontrei o clone local do plugin. Posso clonar para
+~/.local/share/rfl-laravel-skills agora? [s/n/path-customizado]
+```
+
+##### Passo 3 — Perguntar escopo
+
+Uma única pergunta:
+
+```
+Onde instalar os agents?
+
+  [g] Global (~/.claude/agents/) — disponível em todos os projetos. Recomendado.
+  [p] Project (.claude/agents/) — só este projeto. Versionar no repo se equipe.
+```
+
+##### Passo 4 — Aplicar
+
+Sem perguntar mais nada — usar **symlink** (atualizações via `git pull` no clone refletem automaticamente):
+
+```bash
+TARGET="${SCOPE_PATH}"  # ~/.claude/agents ou .claude/agents
+mkdir -p "$TARGET"
+for agent in laravel-simplifier laravel-reviewer livewire-flux-reviewer pest-test-writer pr-spec-reviewer; do
+  ln -sf "${PLUGIN_PATH}/agents/${agent}.md" "${TARGET}/${agent}.md"
+done
+```
+
+Se o filesystem não suporta symlinks (raro em macOS/Linux, comum em alguns mounts), cair para `cp` automaticamente:
+
+```bash
+cp "${PLUGIN_PATH}/agents/"*.md "${TARGET}/"
+```
+
+##### Passo 5 — Confirmar e persistir
+
+```bash
+ls "$TARGET"/*.md | wc -l   # esperar 5
+```
+
+Se 5 arquivos:
+```
+✅ 5 agents instalados em ~/.claude/agents/ (symlinkados de ~/.local/share/rfl-laravel-skills/agents/)
+   Para atualizar no futuro: cd ~/.local/share/rfl-laravel-skills && git pull
+```
+
+Salvar o path do plugin em `.claude/plugin-source` para a próxima execução do setup pular o passo 2:
+
+```bash
+mkdir -p .claude
+echo "$PLUGIN_PATH" > .claude/plugin-source
+```
+
+Se algum dos 5 não foi criado, abortar com erro claro indicando qual e por quê.
 
 #### Seção F — `.gitignore`
 
