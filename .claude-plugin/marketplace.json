@@ -1,0 +1,14 @@
+{
+  "name": "rfl-laravel-skills",
+  "owner": {
+    "name": "Rafael Oliveira",
+    "email": "rfloliveira@sophostech.com.br"
+  },
+  "plugins": [
+    {
+      "name": "rfl-laravel-skills",
+      "source": ".",
+      "description": "11 skills + 1 agent for Laravel 12 + Livewire 4 + Tailwind + Alpine + Flux UI: setup, grill→PRD→issues→TDD→PR workflow, docs maintenance."
+    }
+  ]
+}
