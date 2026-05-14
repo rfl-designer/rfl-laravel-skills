@@ -7,7 +7,10 @@
   "plugins": [
     {
       "name": "rfl-laravel-skills",
-      "source": ".",
+      "source": {
+        "source": "github",
+        "repo": "rfl-designer/rfl-laravel-skills"
+      },
       "description": "11 skills + 1 agent for Laravel 12 + Livewire 4 + Tailwind + Alpine + Flux UI: setup, grill→PRD→issues→TDD→PR workflow, docs maintenance."
     }
   ]
