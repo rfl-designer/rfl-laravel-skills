@@ -179,6 +179,56 @@ Depois que todos os testes passam, procure [candidatos a refactor](refactoring.m
 
 **Nunca refatore enquanto RED.** Chegue ao GREEN primeiro.
 
+### 5. Commit (fim de ciclo) — obrigatório
+
+Cada ciclo RED→GREEN encerra com **um commit** que captura a slice testada. Não acumule múltiplas slices num único commit — granularidade fina é o que torna `git bisect`, code review e roll-back cirúrgicos.
+
+**Quando commitar:**
+
+- Imediatamente após o teste ficar GREEN (e antes de começar o próximo RED).
+- Se você fez refactor pós-GREEN, **dois commits**: um `feat:`/`fix:` da slice, depois um `refactor:` separado.
+- **Nunca commit em RED.** Se o teste está vermelho, não empilha o commit — ou o teste anterior estava broken e você precisa entender o quê.
+
+**Convenção de mensagem (Conventional Commits, EN):**
+
+- `feat(<scope>):` para comportamento novo — default da slice
+- `fix(<scope>):` quando a slice corrige bug
+- `refactor(<scope>):` para limpeza pós-GREEN, sempre commit separado
+- `test(<scope>):` apenas se for teste sem código de produção (raro em TDD vertical)
+
+O título do commit reflete o comportamento testado — mesmo verbo do `it(...)`:
+
+| Teste | Commit |
+|---|---|
+| `it('lets project member leave a comment')` | `feat(comments): allow project member to leave comment` |
+| `it('rejects comment from non-member')` | `feat(comments): reject comment from non-member` |
+| `it('extracts CommentPolicy from inline check')` | `refactor(comments): extract policy from inline check` |
+
+**Gate antes do commit:**
+
+```bash
+vendor/bin/pest --filter=<slice-keyword>   # slice está verde
+vendor/bin/pint                             # estilo aplicado
+git add <arquivos-da-slice>                 # nunca git add -A neste ciclo
+git commit -m "feat(<scope>): <one-line>"
+```
+
+Adicione apenas os arquivos da slice — `git add -A` arrasta lixo de outras áreas e quebra a granularidade. Os 4 arquivos típicos de uma slice Laravel:
+
+```
+database/migrations/<timestamp>_<name>.php
+app/Models/<Model>.php  (ou Action/FormRequest/Policy)
+app/Livewire/<Component>.php  +  resources/views/livewire/<view>.blade.php
+tests/Feature/<Slice>Test.php
+```
+
+**Por que commit fino:**
+
+- `/open-pr` deriva o título do PR por precedência de Conventional Commits — slices granulares dão um histórico de PR legível e categorização correta.
+- `git bisect` localiza regressões em segundos quando cada commit é um único comportamento testado.
+- Reviewer pedindo reverter parte do trabalho → `git revert <hash>` cirúrgico, sem desempacotar diff.
+- O `/review-pr` (especialmente o `pr-spec-reviewer`) consegue mapear cada commit a um critério de aceitação da issue.
+
 ## Checklist por ciclo
 
 ```
@@ -187,6 +237,8 @@ Depois que todos os testes passam, procure [candidatos a refactor](refactoring.m
 [ ] Teste sobreviveria a refactor interno
 [ ] Código é mínimo para este teste
 [ ] Sem features especulativas
+[ ] Commit feito após GREEN (Conventional Commits, escopo da slice)
+[ ] Refactor (se houver) commitado separado do feat/fix
 ```
 
 ## Checklist Laravel-específico
