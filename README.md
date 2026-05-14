@@ -2,7 +2,7 @@
 
 Plugin Claude Code que orquestra o ciclo de desenvolvimento **Laravel 12 + Livewire 4 + Tailwind + Alpine + Flux UI**.
 
-Trabalha em conjunto com [`laravel/boost`](https://github.com/laravel/boost) — o boost fornece guidelines de stack (versões, padrões idiomáticos), este plugin fornece o **processo** (grilling, PRDs, issues, TDD, reviews, roadmap).
+Trabalha em conjunto com [`laravel/boost`](https://github.com/laravel/boost) — o boost fornece guidelines de stack (versões, padrões idiomáticos), este plugin fornece o **processo** (grilling, PRDs, issues, TDD, review consolidado, roadmap).
 
 ## Atualização
 
@@ -12,7 +12,7 @@ Como o plugin instala skills + agents, a atualização tem nuances:
 |---|---|
 | Tudo (Caminho A — `/plugin install`) | `cd <plugin-path> && git pull` |
 | Skills (Caminho B — `npx skills`) | `npx skills update` (todas) ou `npx skills update tdd open-pr` (por nome) |
-| Agents (qualquer caminho) | `cd ~/.local/share/rfl-laravel-skills && git pull` (se symlinkados pelo setup) |
+| Agent (qualquer caminho) | `cd ~/.local/share/rfl-laravel-skills && git pull` (se symlinkado pelo setup) |
 | Re-validar configs/symlinks | `/setup-rfl-laravel-skills` (idempotente) |
 
 > ⚠️ `npx skills update <nome>` recebe o **nome da skill** (do frontmatter, ex: `tdd`, `open-pr`), não o nome do repo (`rfl-laravel-skills`). Para listar nomes instalados: `npx skills list`.
@@ -25,7 +25,7 @@ Você tem **dois caminhos** com trade-offs claros. Escolha conforme seu cenário
 
 ### Caminho A — Claude Code nativo via `/plugin install` (recomendado para Claude Code)
 
-Pega tudo: **11 skills + 5 agents** em uma única operação. Necessário porque a CLI universal (caminho B) só lida com skills, não com agents.
+Pega tudo: **11 skills + 1 agent** em uma única operação. Necessário porque a CLI universal (caminho B) só lida com skills, não com agents.
 
 ```
 git clone https://github.com/rfl-designer/rfl-laravel-skills.git ~/plugins/rfl-laravel-skills
@@ -36,11 +36,11 @@ No Claude Code:
 /plugin install ~/plugins/rfl-laravel-skills
 ```
 
-O Claude Code lê `.claude-plugin/plugin.json` e registra skills + agents simultaneamente. Atualiza com `git pull` no clone.
+O Claude Code lê `.claude-plugin/plugin.json` e registra skills + agent simultaneamente. Atualiza com `git pull` no clone.
 
 ### Caminho B — `npx skills add` (universal, multi-agent)
 
-Funciona com Claude Code, Codex, Cursor, OpenCode e outros. **Limitação:** instala apenas as 11 skills em `.claude/skills/`. **Os 5 agents precisam ser copiados manualmente** para `.claude/agents/` (a CLI universal ainda não suporta agents).
+Funciona com Claude Code, Codex, Cursor, OpenCode e outros. **Limitação:** instala apenas as 11 skills em `.claude/skills/`. **O agent `laravel-simplifier` precisa ser copiado manualmente** para `.claude/agents/` (a CLI universal ainda não suporta agents).
 
 Abra um terminal **normal** (fora do Claude Code/Codex) e rode:
 
@@ -56,20 +56,20 @@ A CLI vai perguntar:
 
 > ⚠️ Quando rodado **de dentro** de um agent (ex.: o próprio Claude Code), a CLI detecta o ambiente e instala não-interativamente. Para o prompt interativo, use terminal externo.
 
-Para os 5 agents Claude Code, faça um clone separado e symlink:
+Para o agent Claude Code, faça um clone separado e symlink:
 
 ```bash
 # Global (todos os projetos veem)
 git clone https://github.com/rfl-designer/rfl-laravel-skills.git ~/plugins/rfl-laravel-skills
 mkdir -p ~/.claude/agents
-ln -sf ~/plugins/rfl-laravel-skills/agents/*.md ~/.claude/agents/
+ln -sf ~/plugins/rfl-laravel-skills/agents/laravel-simplifier.md ~/.claude/agents/
 
 # OU project-local (.claude/ no projeto)
 mkdir -p .claude/agents
-ln -sf ~/plugins/rfl-laravel-skills/agents/*.md .claude/agents/
+ln -sf ~/plugins/rfl-laravel-skills/agents/laravel-simplifier.md .claude/agents/
 ```
 
-Ou use `/setup-rfl-laravel-skills` no Claude Code — a skill detecta esse cenário e oferece copiar os agents para você.
+Ou use `/setup-rfl-laravel-skills` no Claude Code — a skill detecta esse cenário e oferece copiar o agent para você.
 
 ### Flags úteis da CLI (caminho B)
 
@@ -99,7 +99,7 @@ npx skills add rfl-designer/rfl-laravel-skills -a claude-code -g
 /tdd              →  red-green-refactor em Pest, slice completa
 /simplify         →  laravel-simplifier passa sobre o diff
 /open-pr          →  PR no GitHub, linkada à issue
-/review-pr        →  4 reviewers em paralelo (Laravel + Livewire/Flux + Pest + spec vs issue)
+/review-pr        →  review consolidado sem sub-agents (Laravel + Livewire/Flux + Pest + spec vs issue)
 (PR merged)
 /organize-docs    →  ADRs propostos, glossário atualizado
 /update-roadmap   →  docs/roadmap/index.html atualizado por ondas
@@ -123,7 +123,7 @@ npx skills add rfl-designer/rfl-laravel-skills -a claude-code -g
 ### Laravel (`skills/laravel/`)
 
 - **[simplify](./skills/laravel/simplify-with-agent/SKILL.md)** — invoca `laravel-simplifier` sobre o diff não-commitado.
-- **[review-pr](./skills/laravel/review-pr/SKILL.md)** — dispara 4 reviewers em paralelo (incluindo spec compliance vs issue) e consolida.
+- **[review-pr](./skills/laravel/review-pr/SKILL.md)** — revisa PR em uma passagem consolidada, sem sub-agents, cobrindo Laravel, Livewire/Flux, Pest e spec compliance vs issue.
 
 ### Docs (`skills/docs/`)
 
@@ -133,21 +133,17 @@ npx skills add rfl-designer/rfl-laravel-skills -a claude-code -g
 ## Agents
 
 - **[laravel-simplifier](./agents/laravel-simplifier.md)** — refatora código PHP/Laravel preservando comportamento. (Importado de [laravel/agent-skills](https://github.com/laravel/agent-skills), Apache-2.0.)
-- **[laravel-reviewer](./agents/laravel-reviewer.md)** — revisa Application/Persistence: N+1, validação, autorização, container, migrations.
-- **[livewire-flux-reviewer](./agents/livewire-flux-reviewer.md)** — revisa Livewire 4 + Flux + Alpine + Tailwind + a11y.
-- **[pest-test-writer](./agents/pest-test-writer.md)** — revisa qualidade dos testes Pest; pode escrever testes sob demanda.
-- **[pr-spec-reviewer](./agents/pr-spec-reviewer.md)** — compara PR com acceptance criteria das issues fechadas: cobertura, scope creep, spec drift, missing artifacts.
 
 ## Status
 
 Sprint A ✅ fundação (Etapas 0, 1, 4) — `grill-with-docs`, `tdd`.
 Sprint B ✅ planejamento (Etapas 2, 3) — `to-prd`, `to-issues`.
-Sprint C ✅ entrega (Etapas 5, 6, 7) — `open-pr`, `simplify`, `review-branch` + reviewers especializados.
+Sprint C ✅ entrega (Etapas 5, 6, 7) — `open-pr`, `simplify`, `review-pr` consolidado.
 Sprint D ✅ manutenção (Etapas 8, 9) — `organize-docs`, `update-roadmap`.
 Bootstrap ✅ `setup-rfl-laravel-skills` — one-shot por repo.
 Quality Gates ✅ `setup-quality-gates` — baseline ratchet para PRs com IA.
 
-**Plugin completo.** 11 skills + 5 agents. As 9 etapas do PLAN.md estão implementadas.
+**Plugin completo.** 11 skills + 1 agent. As 9 etapas do PLAN.md estão implementadas.
 
 Veja [PLAN.md](../PLAN.md) para detalhes.
 

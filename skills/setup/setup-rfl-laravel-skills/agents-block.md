@@ -53,7 +53,7 @@ Configurações em `.claude/*.json` e `docs/`.
 | `/tdd` | Red-green-refactor com Pest |
 | `/simplify` | Refatorar diff não-commitado (gated por Pest verde) |
 | `/open-pr` | Abrir PR com título derivado de Conventional Commits |
-| `/review-pr` | 4 reviewers em paralelo: Laravel + Livewire/Flux + Pest + spec compliance vs issue |
+| `/review-pr` | Review consolidado sem sub-agents: Laravel + Livewire/Flux + Pest + spec compliance vs issue |
 | `/organize-docs` | Varredura interativa de docs pós-PRs |
 | `/update-roadmap` | Gerar `docs/roadmap/index.html` por ondas |
 ```

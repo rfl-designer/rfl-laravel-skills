@@ -4,7 +4,7 @@ Este repo é o plugin Claude Code `rfl-laravel-skills`. Skills são organizadas 
 
 - `setup/` — bootstrap one-shot do plugin no projeto consumidor (`setup-rfl-laravel-skills`)
 - `process/` — workflow de desenvolvimento (grill, prd, issues, tdd, pr)
-- `laravel/` — wrappers que disparam agents do diretório `agents/` (simplifier, reviewers)
+- `laravel/` — skills Laravel (`simplify` usa agent; `review-pr` é consolidado no agente principal)
 - `docs/` — manutenção da documentação do projeto consumidor (organize-docs, update-roadmap)
 
 ## Regras

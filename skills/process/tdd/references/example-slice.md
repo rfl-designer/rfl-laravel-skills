@@ -213,4 +213,4 @@ Quando todas as 4 slices estiverem prontas (4 commits `feat(comments):...`), inv
 2. **Mínima** — não construiu suporte pra "editar comentário", "deletar", "responder" — isso são outras slices, outras issues
 3. **Comportamento, não estrutura** — teste descreve "deixar comentário", não "chamar `Project::comments()->create()`"
 4. **Verificada pela interface** — `$project->refresh()->comments` em vez de `DB::table('comments')->count()`
-5. **Commit captura UMA slice** — granularidade que `/open-pr` e `pr-spec-reviewer` conseguem mapear de volta a 1 critério da issue
+5. **Commit captura UMA slice** — granularidade que `/open-pr` e `/review-pr` conseguem mapear de volta a 1 critério da issue

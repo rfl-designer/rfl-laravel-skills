@@ -1,17 +1,17 @@
 # Reviewer baseline — anti-padrões que viram BLOCKER em PR
 
-Quando a feature inteira fechar e você rodar `/open-pr`, o `/review-pr` dispara **4 reviewers em paralelo** sobre o diff:
+Quando a feature inteira fechar e você rodar `/open-pr`, o `/review-pr` faz uma **revisão consolidada sem sub-agents** sobre o diff:
 
-- `laravel-reviewer` — Application/Persistence (Eloquent, validação, autorização, container)
-- `livewire-flux-reviewer` — Presentation (Livewire 4, Volt, Flux UI, Alpine, Tailwind, a11y)
-- `pest-test-writer` — qualidade dos testes Pest
-- `pr-spec-reviewer` — aderência da PR aos critérios da issue fechada
+- Application/Persistence (Eloquent, validação, autorização, container)
+- Presentation (Livewire 4, Volt, Flux UI, Alpine, Tailwind, a11y)
+- qualidade dos testes Pest
+- aderência da PR aos critérios da issue fechada
 
 Os checklists abaixo enumeram os BLOCKERs mais frequentes por camada. Internalize-os durante o RED→GREEN: fix preventivo enquanto o código está fresco custa segundos; fix reativo após review custa um round-trip de PR.
 
-> **Quando consultar este arquivo:** antes de iniciar a slice (orientação), ou ao terminar o ciclo (auto-revisão antes do `/open-pr`). Não é checklist do `/review-pr` — esse pertence aos próprios reviewers.
+> **Quando consultar este arquivo:** antes de iniciar a slice (orientação), ou ao terminar o ciclo (auto-revisão antes do `/open-pr`). É a baseline preventiva do `/review-pr`, não substitui o diff review final.
 
-## Camada 1 — Migration + Model (`laravel-reviewer`)
+## Camada 1 — Migration + Model
 
 - [ ] FK column tem índice (use `->constrained()` ou `->index()` explícito)
 - [ ] Toda FK tem política `->onDelete('cascade'|'set null'|'restrict')` decidida
@@ -21,7 +21,7 @@ Os checklists abaixo enumeram os BLOCKERs mais frequentes por camada. Internaliz
 - [ ] Sem `Model::all()` seguido de `->filter()` em PHP — empurre para SQL com `where()`
 - [ ] Sem `where('id', $id)->first()` — use `find($id)`
 
-## Camada 2 — Action / Form Request / Policy (`laravel-reviewer`)
+## Camada 2 — Action / Form Request / Policy
 
 - [ ] Validação **só** em Form Request — nunca inline em controller/Livewire
 - [ ] Form Request `authorize()` **não** é blanket-true (delega à Policy ou checa contexto)
@@ -32,7 +32,7 @@ Os checklists abaixo enumeram os BLOCKERs mais frequentes por camada. Internaliz
 - [ ] Sem `dd()`, `dump()`, `ray()`, `var_dump()`, `Log::debug()` deixados no diff
 - [ ] Sem código comentado (use git history)
 
-## Camada 3 — Livewire/Volt + Flux + Alpine (`livewire-flux-reviewer`)
+## Camada 3 — Livewire/Volt + Flux + Alpine
 
 - [ ] Inputs usam `<flux:input>`, `<flux:select>`, `<flux:textarea>`, `<flux:checkbox>` — não `<input>` cru
 - [ ] Botões usam `<flux:button variant="...">` com variant adequada
@@ -47,7 +47,7 @@ Os checklists abaixo enumeram os BLOCKERs mais frequentes por camada. Internaliz
 - [ ] `<button type="button">` explícito quando não submete form
 - [ ] `<img>` com `loading="lazy"` + dimensões (CLS)
 
-## Camada 4 — Pest test (`pest-test-writer`)
+## Camada 4 — Pest test
 
 - [ ] Nome do teste descreve **WHAT** (`it('lets user check out')`), não **HOW**
 - [ ] **Sem mock de classe interna** (Action, Service do próprio app)
@@ -61,7 +61,7 @@ Os checklists abaixo enumeram os BLOCKERs mais frequentes por camada. Internaliz
 - [ ] `Carbon::setTestNow()` sempre tem reset (ou usa `freezeTime()`)
 - [ ] Datasets (`->with([...])`) só quando o **mesmo** comportamento roda sobre input variado — não para esconder N testes diferentes
 
-## Aderência à issue (`pr-spec-reviewer`)
+## Aderência à issue
 
 Esses BLOCKERs são detectados comparando PR com a issue fechada. Antes de abrir PR, valide:
 
@@ -71,4 +71,4 @@ Esses BLOCKERs são detectados comparando PR com a issue fechada. Antes de abrir
 - [ ] Sem **spec drift**: API contract, componente Flux, ou abordagem que diverge da issue sem justificativa explícita no PR body
 - [ ] Artefatos prometidos pela issue estão no diff: ADR atualizada, `CONTEXT.md` atualizado, migration nomeada como acordado
 
-> Se aparecer scope creep legítimo (ex.: bug fix descoberto no caminho), abra **PR separada**. O reviewer marca como BLOCKER quando `gh pr view --json closingIssuesReferences` aponta a uma issue cujo escopo não cobre as mudanças.
+> Se aparecer scope creep legítimo (ex.: bug fix descoberto no caminho), abra **PR separada**. O `/review-pr` marca como BLOCKER quando `gh pr view --json closingIssuesReferences` aponta a uma issue cujo escopo não cobre as mudanças.

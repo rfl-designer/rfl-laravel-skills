@@ -1,15 +1,15 @@
 ---
 name: review-pr
-description: Review the current branch's pull request along FOUR axes in parallel — Laravel idioms, Livewire/Flux/a11y, Pest test quality, AND spec compliance against the originating issue's acceptance criteria. Use before merging, when user says "review the PR", "review my changes", "/review-pr [number]", or after /simplify.
+description: Review the current branch's pull request in a single consolidated pass without spawning review sub-agents. Checks Laravel idioms, Livewire/Flux/a11y, Pest test quality, and spec compliance against originating issue acceptance criteria. Use before merging, when user says "review the PR", "review my changes", "/review-pr [number]", or after /simplify.
 ---
 
 # Review PR
 
-Dispara quatro sub-agents em paralelo sobre o diff do PR atual e consolida o output. Cobre framework Laravel, presentation Livewire/Flux/Alpine, qualidade de testes Pest **e — diferencial crítico — verifica se o código entregue cumpre os acceptance criteria das issues que o PR fecha**.
+Revisa o PR atual em **uma passagem consolidada**, sem disparar sub-agents. O objetivo é reduzir consumo de token mantendo o gate essencial antes do merge: risco Laravel, apresentação Livewire/Flux, qualidade de testes Pest e aderência às issues fechadas.
 
 ## Princípio operacional
 
-Review é **gate de merge**, não backlog infinito. O output deve separar risco real de preferência para evitar o ciclo `tdd → review → tdd → review`.
+Review é **gate de merge**, não backlog infinito. Separe risco real de preferência para evitar o ciclo `tdd → review → tdd → review`.
 
 Use esta régua:
 
@@ -17,13 +17,12 @@ Use esta régua:
 - **NIT** — vale corrigir, mas não impede merge: idiom Laravel/Livewire melhorável, clareza de teste, PR body incompleto, inconsistência pequena sem risco imediato.
 - **NICE-TO-HAVE** — preferência, melhoria futura, limpeza ou oportunidade arquitetural.
 
-O review deve produzir uma fila triável. Não peça "voltar ao TDD" genericamente; aponte qual blocker aceito exige nova slice comportamental e qual pode ser resolvido com patch mínimo.
+O output deve produzir uma fila triável. Não peça "voltar ao TDD" genericamente; aponte qual blocker aceito exige nova slice comportamental e qual pode ser resolvido com patch mínimo.
 
 ## Pré-requisitos
 
 - `gh` CLI autenticado
-- Branch atual tem PR aberta (ou usuário passou número/URL como argumento)
-- Sub-agents disponíveis: `laravel-reviewer`, `livewire-flux-reviewer`, `pest-test-writer`, `pr-spec-reviewer`
+- Branch atual tem PR aberta, ou usuário passou número/URL como argumento
 
 ## Processo
 
@@ -41,16 +40,18 @@ Resolução por prioridade:
 ### 2. Buscar PR + issues fechadas
 
 ```bash
-gh pr view "$PR" --json number,title,body,baseRefName,closingIssuesReferences,files,additions,deletions
+gh pr view "$PR" --json number,title,body,baseRefName,headRefName,closingIssuesReferences,files,additions,deletions
 ```
 
 Capturar:
+
 - **PR body** — descrição, screenshots, checklist
 - **closingIssuesReferences** — issues que serão fechadas (`Closes #N` parseado pelo gh)
 - **baseRefName** — base branch para o diff
 - **files** — lista de arquivos tocados
 
 Para cada issue em `closingIssuesReferences`:
+
 ```bash
 gh issue view "$N" --json number,title,body,labels,milestone,state
 ```
@@ -65,58 +66,56 @@ git diff "origin/$BASE..HEAD" --stat
 git diff "origin/$BASE..HEAD"
 ```
 
-Se diff > 2000 linhas: avisar e oferecer dividir por subdiretório antes de mandar aos reviewers.
+Se diff > 2000 linhas: avisar que a revisão única ficará menos precisa e sugerir revisar por subdiretório ou por commit. Não dispare sub-agents.
 
 ### 4. Coletar contexto da stack
 
-Ler do projeto:
+Ler do projeto, quando existirem:
+
 - `AGENTS.md` (boost) — pacotes e versões
 - `CLAUDE.md` — convenções do projeto
 - `CONTEXT.md` — vocabulário de domínio
 
-### 5. Disparar os 4 sub-agents EM PARALELO
+### 5. Revisar em uma passagem
 
-Uma única mensagem com 4 chamadas paralelas via Agent tool:
+Percorra o diff uma vez, agrupando achados nestas dimensões:
 
-```
-Agent #1: laravel-reviewer
-  prompt: <stack context> + <diff>
-  scope: Application/Persistence (idioms Laravel)
-  severity: BLOCKER somente para risco de merge; preferências ficam como NIT/NICE
+#### Spec
 
-Agent #2: livewire-flux-reviewer
-  prompt: <stack context> + <diff>
-  scope: Presentation (Livewire 4, Flux, Alpine, a11y)
-  severity: BLOCKER somente para UX quebrada, a11y impeditiva, estado incorreto ou regressão provável
+- Cada acceptance criterion das issues fechadas está entregue?
+- O PR implementa o `What to build` sem desviar para outro escopo?
+- Há scope creep que deveria virar PR separada?
+- O body do PR justifica qualquer desvio relevante?
 
-Agent #3: pest-test-writer (review mode)
-  prompt: <stack context> + <diff>
-  scope: Test quality
-  severity: BLOCKER somente quando o teste mascara comportamento crítico ou dá falsa segurança sobre a issue
+#### Laravel
 
-Agent #4: pr-spec-reviewer  ← O DIFERENCIAL
-  prompt:
-    Issue(s) being closed by this PR:
-    <issue body 1>
-    <issue body 2>
-    ...
+- N+1 provável, queries em loop, eager loading ausente
+- Validação no lugar errado; Form Request ausente quando o fluxo exige
+- Autorização ausente ou inconsistente com Policy
+- Uso indevido de container, service locator ou facades em camada errada
+- Migration perigosa, irreversível, sem defaults ou com risco de dados
+- Debug artifacts (`dd`, `dump`, logs ruidosos, flags temporárias)
 
-    PR title: <title>
-    PR body: <body>
-    PR diff:
-    <diff>
+#### Livewire / Flux / Alpine
 
-    Check: does the PR deliver what each issue's "Acceptance criteria"
-    and "What to build" demanded? Flag missing criteria, scope creep,
-    or partial implementation.
-    severity: missing acceptance criteria are BLOCKER; adjacent follow-ups are NIT unless they prevent closing the issue.
-```
+- Estado duplicado entre Livewire e Alpine
+- `wire:model` sem modifier apropriado para Livewire 4
+- `wire:key` ausente em listas dinâmicas
+- Flux substituível por HTML cru nos controles principais
+- A11y impeditiva: label ausente, foco quebrado, modal inacessível, contraste insuficiente
+- Layout ou estado visual incoerente com o fluxo do usuário
 
-**Importante:** uma mensagem com 4 tool calls simultâneas. NÃO serial.
+#### Pest
+
+- Teste acopla em implementação em vez de comportamento
+- Assertion fraca que passaria mesmo com bug crítico
+- Fake/mock mascarando integração que a issue exige validar
+- Falta teste para blocker identificado no spec
+- Uso não idiomático de factories, datasets, helpers Laravel ou Livewire test
 
 ### 6. Consolidar
 
-Quando os 4 retornarem, montar resposta única:
+Monte resposta única:
 
 ```markdown
 # Review PR #<N>: "<título>"
@@ -124,75 +123,49 @@ Quando os 4 retornarem, montar resposta única:
 `<branch>` → `<base>` · `<files> arquivos · +<adds>/-<dels> linhas`
 Fechando: #<I1>, #<I2>
 
-## 🚫 BLOCKERS
+## BLOCKERS
 
 | # | Dimensão | Arquivo | Achado |
 |---|---|---|---|
 | 1 | Spec | — | Issue #18 acceptance criteria 3 ("notifica autor por e-mail") não foi entregue |
-| 2 | Laravel | `app/Actions/Foo.php:42` | N+1 detectado |
-| 3 | Livewire | `resources/views/comment.blade.php:18` | `wire:model` sem modifier — usar `.blur` |
+| 2 | Laravel | `app/Actions/Foo.php:42` | N+1 provável ao carregar comentários dentro do loop |
 
 (Se vazio: "Nenhum blocker encontrado.")
 
-## ⚠️ NITS
-<consolidados dos 4 reviewers>
+## NITS
+<achados não bloqueantes>
 
-## 💡 NICE-TO-HAVE
-<consolidados dos 4 reviewers>
+## NICE-TO-HAVE
+<melhorias futuras>
 
-## ✅ Disposition Queue
+## Disposition Queue
 
 | Achado | Disposição | Próximo passo |
 |---|---|---|
 | Spec #18 missing e-mail notification | ACCEPT_NOW | Nova slice TDD: teste de Notification fake + implementação |
-| Livewire `wire:key` missing | ACCEPT_NOW | Patch mínimo + teste Livewire afetado |
 | PR body sem screenshot | SPLIT_FOLLOW_UP | Não bloqueia merge; anexar se usuário pedir |
 | Sugestão de extrair service | REJECT_FALSE_POSITIVE | Preferência sem risco neste diff |
 
----
-
-## 📋 Spec Compliance (vs issues fechadas)
+## Spec Compliance
 
 ### Issue #18 — "Comentários em projeto"
 
 **Acceptance criteria:**
-- [x] Membro do projeto pode adicionar comentário ✅ entregue
-- [x] Comentário é exibido em ordem cronológica ✅ entregue
-- [ ] Notifica autor do projeto por e-mail ❌ AUSENTE
-- [x] Validação de body vazio ✅ entregue
-- [x] `vendor/bin/pest --filter=Comment` passa ✅ verificado
+- [x] Membro do projeto pode adicionar comentário — entregue
+- [x] Comentário é exibido em ordem cronológica — entregue
+- [ ] Notifica autor do projeto por e-mail — ausente
+- [x] Validação de body vazio — entregue
 
-**What to build:** "Membros do projeto podem deixar comentários em entregas para discutir feedback sem sair da plataforma."
-→ Entregue parcialmente: UX de comentar funciona, falta notificação.
-
-**Veredicto:** PR cumpre 4/5 critérios. **Notificação é blocker para fechar a issue.**
-
-### (repetir por issue)
-
----
-
-## Por reviewer
-
-### Laravel
-<output bruto>
-
-### Livewire / Flux / Alpine
-<output bruto>
-
-### Pest
-<output bruto>
-
-### Spec compliance
-<output bruto do pr-spec-reviewer>
+**Veredicto:** PR cumpre 3/4 critérios. Notificação é blocker para fechar a issue.
 ```
 
 ### 7. Sugestões pós-review
 
 - Para cada BLOCKER, proponha uma disposição: `ACCEPT_NOW`, `SPLIT_FOLLOW_UP`, `DOC_JUSTIFY`, ou `REJECT_FALSE_POSITIVE`.
-- Se há BLOCKERS aceitos de qualquer dimensão → "Resolva esses antes de mergear", listando o menor teste/gate a rerodar.
+- Se há BLOCKERS aceitos → "Resolva esses antes de mergear", listando o menor teste/gate a rerodar.
 - Se há BLOCKERS apenas de Spec → "PR está tecnicamente OK mas incompleto vs issue. Decisão: terminar a slice OU dividir issue/PR para entregar o resto separadamente."
 - Se só há NIT/NICE-TO-HAVE → "Pode mergear. Não precisa voltar ao TDD; abra follow-up se quiser preservar a sugestão."
-- Se um reviewer detectou padrão recorrente → "Considere virar guideline em `CLAUDE.md`."
+- Se detectar padrão recorrente → "Considere virar guideline em `CLAUDE.md`."
 
 ### 8. Rerun controlado
 
@@ -200,7 +173,7 @@ Depois de correções, não reexecute o review completo automaticamente. Rode:
 
 - o teste/gate local que cobre o patch;
 - Pint se PHP/Blade mudou;
-- apenas o reviewer cujo BLOCKER foi endereçado, quando a confirmação humana não for suficiente.
+- uma revisão focada apenas no BLOCKER endereçado, quando a confirmação humana não for suficiente.
 
 Pare quando não houver BLOCKER com disposição `ACCEPT_NOW` pendente. Não bloqueie merge por NIT/NICE.
 
@@ -208,5 +181,6 @@ Pare quando não houver BLOCKER com disposição `ACCEPT_NOW` pendente. Não blo
 
 - **Não modifica nenhum arquivo.** Leitura pura — comenta no terminal, não no GitHub.
 - **Não posta comentários no PR.** Output é local. Usuário decide o que vira comment ou commit.
+- **Não dispara sub-agents.** Esta skill foi desenhada para reduzir consumo de token.
 - **Funciona sem PR aberta?** Não. Para revisar branch sem PR, abra com `/open-pr --draft` antes ou compare manualmente com `git diff`.
-- **Issues sem acceptance criteria?** O `pr-spec-reviewer` ainda compara com `What to build` em prosa — menos preciso, mas ainda útil.
+- **Issues sem acceptance criteria?** Compare com `What to build` em prosa — menos preciso, mas ainda útil.

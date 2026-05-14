@@ -193,7 +193,7 @@ tests/Feature/<Slice>Test.php
 - `/open-pr` deriva o título do PR por precedência de Conventional Commits — slices granulares dão um histórico de PR legível e categorização correta.
 - `git bisect` localiza regressões em segundos quando cada commit é um único comportamento testado.
 - Reviewer pedindo reverter parte do trabalho → `git revert <hash>` cirúrgico, sem desempacotar diff.
-- O `/review-pr` (especialmente o `pr-spec-reviewer`) consegue mapear cada commit a um critério de aceitação da issue.
+- O `/review-pr` consegue mapear cada commit a um critério de aceitação da issue.
 
 ### 6. Handoff — fim da feature
 
@@ -210,11 +210,11 @@ Se o review trouxer BLOCKERs:
 1. Faça a disposição de cada achado (`ACCEPT_NOW`, `SPLIT_FOLLOW_UP`, `DOC_JUSTIFY`, `REJECT_FALSE_POSITIVE`).
 2. Corrija apenas os `ACCEPT_NOW`.
 3. Rode o menor conjunto de testes/gates que cobre os arquivos afetados.
-4. Reexecute apenas o reviewer relevante quando precisar confirmar a correção; não reinicie a bateria completa por reflexo.
+4. Reexecute apenas uma revisão focada na dimensão corrigida quando precisar confirmar a correção; não reinicie a bateria completa por reflexo.
 
 O loop termina quando não há **BLOCKER aceito** pendente e Pest/Pint estão verdes. Não persiga NITs até zero antes de mergear.
 
-> **Auto-revisão antes do `/open-pr`:** consulte [references/reviewer-baseline.md](references/reviewer-baseline.md) — enumera os BLOCKERs típicos por camada que os 4 reviewers vão checar. Fix preventivo agora custa segundos; fix reativo após review custa um round-trip.
+> **Auto-revisão antes do `/open-pr`:** consulte [references/reviewer-baseline.md](references/reviewer-baseline.md) — enumera os BLOCKERs típicos por camada que o `/review-pr` consolidado vai checar. Fix preventivo agora custa segundos; fix reativo após review custa um round-trip.
 
 ## Checklist por ciclo
 

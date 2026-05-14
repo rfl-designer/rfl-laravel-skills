@@ -14,10 +14,6 @@
     "./skills/docs/update-roadmap"
   ],
   "agents": [
-    "./agents/laravel-simplifier.md",
-    "./agents/laravel-reviewer.md",
-    "./agents/livewire-flux-reviewer.md",
-    "./agents/pest-test-writer.md",
-    "./agents/pr-spec-reviewer.md"
+    "./agents/laravel-simplifier.md"
   ]
 }

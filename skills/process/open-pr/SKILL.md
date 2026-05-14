@@ -171,7 +171,7 @@ Imprima ao usuário:
 - URL do PR
 - Status (draft ou ready)
 - Issues que serão fechadas no merge
-- Próximos passos sugeridos: aguardar review, rodar `/review-branch` localmente para checklist prévio
+- Próximos passos sugeridos: aguardar review, rodar `/review-pr` localmente para checklist prévio
 
 ## Configuração opcional
 

@@ -1,6 +1,6 @@
 # rfl-laravel-skills
 
-Plugin Claude Code que orquestra o ciclo de desenvolvimento Laravel 12 + Livewire 4 + Tailwind + Alpine + Flux UI. Foca em **processo** e **agents de revisão** — guidelines de stack continuam vindo do `laravel/boost` (composer package).
+Plugin Claude Code que orquestra o ciclo de desenvolvimento Laravel 12 + Livewire 4 + Tailwind + Alpine + Flux UI. Foca em **processo** e revisão consolidada com baixo custo de tokens — guidelines de stack continuam vindo do `laravel/boost` (composer package).
 
 ## Language
 
@@ -9,11 +9,11 @@ Slash-command empacotado num diretório com `SKILL.md`. Carregado pelo Claude Co
 _Avoid_: command, prompt, comando
 
 **Agent**:
-Sub-agent invocável via `Agent` tool. Definido em `agents/<nome>.md`. Tem escopo estreito (simplificar, revisar, escrever testes) e roda isolado do contexto principal.
+Sub-agent invocável via `Agent` tool. Definido em `agents/<nome>.md`. Tem escopo estreito (ex.: simplificar código) e roda isolado do contexto principal.
 _Avoid_: bot, assistant secundário
 
 **Bucket**:
-Pasta de primeiro nível dentro de `skills/` que agrupa skills por domínio: `process/` (workflow), `laravel/` (wrappers que disparam agents), `docs/` (manutenção da documentação do projeto).
+Pasta de primeiro nível dentro de `skills/` que agrupa skills por domínio: `process/` (workflow), `laravel/` (operações Laravel como simplify/review), `docs/` (manutenção da documentação do projeto).
 _Avoid_: categoria, grupo
 
 **Slice vertical Laravel**:
@@ -42,7 +42,7 @@ Nível topológico no DAG de dependências entre **Issues**. Issues numa mesma o
 ## Relationships
 
 - Um **Bucket** contém uma ou mais **Skills**
-- Uma **Skill** pode invocar um ou mais **Agents** (ex.: `/review-branch` dispara 3 reviewers em paralelo)
+- Uma **Skill** pode invocar um **Agent** especializado quando o custo compensa (ex.: `/simplify` usa `laravel-simplifier`)
 - Um **PRD** gera N **Issues** (slices verticais)
 - Uma **Issue** pode bloquear ou ser bloqueada por outras **Issues**; o grafo resultante define as **Ondas**
 - Toda **Skill** que toca código Laravel pressupõe que **Stack guidelines (boost)** estão presentes em `AGENTS.md`

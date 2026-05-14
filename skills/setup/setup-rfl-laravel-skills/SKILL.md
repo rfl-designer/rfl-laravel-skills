@@ -141,9 +141,9 @@ Apresentar os 3 configs lado a lado (ver templates em [`configs/`](./configs/)):
 
 Para `roadmap-config.json`, **perguntar título e subtítulo** — o resto pode ficar default.
 
-#### Seção E — Instalar os agents em `.claude/agents/`
+#### Seção E — Instalar o agent em `.claude/agents/`
 
-> Os 5 agents do plugin (`laravel-simplifier`, `laravel-reviewer`, `livewire-flux-reviewer`, `pest-test-writer`, `pr-spec-reviewer`) precisam estar em `.claude/agents/` (project) ou `~/.claude/agents/` (global) para o Claude Code reconhecer. A CLI `npx skills add` não copia agents — esta seção resolve isso automaticamente.
+> O agent `laravel-simplifier` precisa estar em `.claude/agents/` (project) ou `~/.claude/agents/` (global) para o Claude Code reconhecer. A CLI `npx skills add` não copia agents — esta seção resolve isso automaticamente.
 
 **Esta seção EXECUTA a instalação. Não só sugere comandos.**
 
@@ -153,9 +153,9 @@ Para `roadmap-config.json`, **perguntar título e subtítulo** — o resto pode 
 ls .claude/agents/laravel-simplifier.md ~/.claude/agents/laravel-simplifier.md 2>/dev/null
 ```
 
-Se algum dos 5 agents já existe em qualquer um dos dois paths:
+Se o agent já existe em qualquer um dos dois paths:
 ```
-✅ Agents já estão instalados em <path>. Pulando.
+✅ Agent já está instalado em <path>. Pulando.
 ```
 e ir para a Seção F.
 
@@ -187,7 +187,7 @@ Não encontrei o clone local do plugin. Posso clonar para
 Uma única pergunta:
 
 ```
-Onde instalar os agents?
+Onde instalar o agent?
 
   [g] Global (~/.claude/agents/) — disponível em todos os projetos. Recomendado.
   [p] Project (.claude/agents/) — só este projeto. Versionar no repo se equipe.
@@ -200,26 +200,24 @@ Sem perguntar mais nada — usar **symlink** (atualizações via `git pull` no c
 ```bash
 TARGET="${SCOPE_PATH}"  # ~/.claude/agents ou .claude/agents
 mkdir -p "$TARGET"
-for agent in laravel-simplifier laravel-reviewer livewire-flux-reviewer pest-test-writer pr-spec-reviewer; do
-  ln -sf "${PLUGIN_PATH}/agents/${agent}.md" "${TARGET}/${agent}.md"
-done
+ln -sf "${PLUGIN_PATH}/agents/laravel-simplifier.md" "${TARGET}/laravel-simplifier.md"
 ```
 
 Se o filesystem não suporta symlinks (raro em macOS/Linux, comum em alguns mounts), cair para `cp` automaticamente:
 
 ```bash
-cp "${PLUGIN_PATH}/agents/"*.md "${TARGET}/"
+cp "${PLUGIN_PATH}/agents/laravel-simplifier.md" "${TARGET}/"
 ```
 
 ##### Passo 5 — Confirmar e persistir
 
 ```bash
-ls "$TARGET"/*.md | wc -l   # esperar 5
+test -f "$TARGET/laravel-simplifier.md"
 ```
 
-Se 5 arquivos:
+Se o arquivo existe:
 ```
-✅ 5 agents instalados em ~/.claude/agents/ (symlinkados de ~/.local/share/rfl-laravel-skills/agents/)
+✅ Agent instalado em ~/.claude/agents/ (symlinkado de ~/.local/share/rfl-laravel-skills/agents/)
    Para atualizar no futuro: cd ~/.local/share/rfl-laravel-skills && git pull
 ```
 
@@ -230,7 +228,7 @@ mkdir -p .claude
 echo "$PLUGIN_PATH" > .claude/plugin-source
 ```
 
-Se algum dos 5 não foi criado, abortar com erro claro indicando qual e por quê.
+Se o arquivo não foi criado, abortar com erro claro indicando o motivo.
 
 #### Seção F — `.gitignore`
 
@@ -284,7 +282,7 @@ Próximos passos:
   1. Edite CONTEXT.md preenchendo os termos do seu domínio
      (ou rode /grill-with-docs e deixe ele guiar)
   2. Para sua primeira feature: /grill-with-docs → /to-prd → /to-issues
-  3. Para implementar: /tdd → /simplify → /review-branch → /open-pr
+  3. Para implementar: /tdd → /simplify → /open-pr → /review-pr
   4. Periodicamente: /organize-docs e /update-roadmap
 
 Configs criados em .claude/ — edite à vontade.
