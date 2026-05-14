@@ -1,0 +1,4 @@
+interface:
+  display_name: "Setup Quality Gates"
+  short_description: "Install Laravel ratchet quality gates"
+  default_prompt: "Use $setup-quality-gates to install ratcheting quality gates in this Laravel project."

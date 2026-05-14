@@ -25,7 +25,7 @@ Você tem **dois caminhos** com trade-offs claros. Escolha conforme seu cenário
 
 ### Caminho A — Claude Code nativo via `/plugin install` (recomendado para Claude Code)
 
-Pega tudo: **10 skills + 5 agents** em uma única operação. Necessário porque a CLI universal (caminho B) só lida com skills, não com agents.
+Pega tudo: **11 skills + 5 agents** em uma única operação. Necessário porque a CLI universal (caminho B) só lida com skills, não com agents.
 
 ```
 git clone https://github.com/rfl-designer/rfl-laravel-skills.git ~/plugins/rfl-laravel-skills
@@ -40,7 +40,7 @@ O Claude Code lê `.claude-plugin/plugin.json` e registra skills + agents simult
 
 ### Caminho B — `npx skills add` (universal, multi-agent)
 
-Funciona com Claude Code, Codex, Cursor, OpenCode e outros. **Limitação:** instala apenas as 10 skills em `.claude/skills/`. **Os 5 agents precisam ser copiados manualmente** para `.claude/agents/` (a CLI universal ainda não suporta agents).
+Funciona com Claude Code, Codex, Cursor, OpenCode e outros. **Limitação:** instala apenas as 11 skills em `.claude/skills/`. **Os 5 agents precisam ser copiados manualmente** para `.claude/agents/` (a CLI universal ainda não suporta agents).
 
 Abra um terminal **normal** (fora do Claude Code/Codex) e rode:
 
@@ -91,6 +91,7 @@ npx skills add rfl-designer/rfl-laravel-skills -a claude-code -g
 
 ```
 /setup-rfl-laravel-skills  →  bootstrap one-shot (uma vez por repo)
+/setup-quality-gates       →  catraca de qualidade para PRs com IA
 /grill-with-docs  →  CONTEXT.md + ADRs do que foi decidido
 /to-prd           →  docs/prd/<slug>.md + issue PRD no GitHub
 /to-issues        →  N issues vertical-slice no GitHub
@@ -109,6 +110,7 @@ npx skills add rfl-designer/rfl-laravel-skills -a claude-code -g
 ### Setup (`skills/setup/`) — rode primeiro
 
 - **[setup-rfl-laravel-skills](./skills/setup/setup-rfl-laravel-skills/SKILL.md)** — valida pré-requisitos (gh, Pest, Pint, boost), cria `docs/` tree, semeia configs em `.claude/`, adiciona bloco `## Agent skills` em `CLAUDE.md`/`AGENTS.md`. Idempotente — re-rodar é seguro.
+- **[setup-quality-gates](./skills/setup/setup-quality-gates/SKILL.md)** — instala quality gates com baseline/catraca para Laravel 12+ + Livewire 4 + Alpine + Tailwind CSS v4, incluindo script local e workflow GitHub Actions.
 
 ### Process (`skills/process/`)
 
@@ -140,11 +142,12 @@ npx skills add rfl-designer/rfl-laravel-skills -a claude-code -g
 
 Sprint A ✅ fundação (Etapas 0, 1, 4) — `grill-with-docs`, `tdd`.
 Sprint B ✅ planejamento (Etapas 2, 3) — `to-prd`, `to-issues`.
-Sprint C ✅ entrega (Etapas 5, 6, 7) — `open-pr`, `simplify`, `review-branch` + 4 agents.
+Sprint C ✅ entrega (Etapas 5, 6, 7) — `open-pr`, `simplify`, `review-branch` + reviewers especializados.
 Sprint D ✅ manutenção (Etapas 8, 9) — `organize-docs`, `update-roadmap`.
 Bootstrap ✅ `setup-rfl-laravel-skills` — one-shot por repo.
+Quality Gates ✅ `setup-quality-gates` — baseline ratchet para PRs com IA.
 
-**Plugin completo.** 10 skills + 4 agents. As 9 etapas do PLAN.md estão implementadas.
+**Plugin completo.** 11 skills + 5 agents. As 9 etapas do PLAN.md estão implementadas.
 
 Veja [PLAN.md](../PLAN.md) para detalhes.
 

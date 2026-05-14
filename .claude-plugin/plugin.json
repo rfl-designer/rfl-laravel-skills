@@ -2,6 +2,7 @@
   "name": "rfl-laravel-skills",
   "skills": [
     "./skills/setup/setup-rfl-laravel-skills",
+    "./skills/setup/setup-quality-gates",
     "./skills/process/grill-with-docs",
     "./skills/process/to-prd",
     "./skills/process/to-issues",
