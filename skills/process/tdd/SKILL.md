@@ -86,6 +86,21 @@ Pergunte: "Como deve ser a interface pública? Quais comportamentos são mais im
 
 > **Operação autônoma (sem usuário no loop):** quando rodando sem confirmação humana possível, pule "Conseguir aprovação" e use o melhor julgamento. Documente as escolhas no commit body para revisão posterior.
 
+### Review loop bounded
+
+`/review-pr` é um **gate de merge**, não uma continuação infinita do TDD. O TDD produz slices verdes; o review classifica risco restante. Quando review apontar BLOCKER, não reinicie a feature inteira.
+
+Para cada achado do review, escolha uma disposição antes de codar:
+
+- **ACCEPT_NOW** — blocker real, dentro do escopo da issue/PR. Corrija com a menor slice possível.
+- **SPLIT_FOLLOW_UP** — válido, mas fora do escopo do PR atual. Abra/aponte issue separada e ajuste o PR body se necessário.
+- **DOC_JUSTIFY** — desvio intencional. Documente no PR body/ADR/issue em vez de mudar código.
+- **REJECT_FALSE_POSITIVE** — achado incorreto ou preferência. Não altere código; registre a razão no resumo.
+
+Só volte ao RED→GREEN quando a disposição for **ACCEPT_NOW** e houver comportamento novo/faltante ou regressão observável. Blocker técnico sem comportamento novo (ex.: `env()` fora de config, `wire:key` faltando, debug artifact) recebe patch mínimo + teste existente/afetado rodando; não exige uma nova slice completa.
+
+NITs e NICE-TO-HAVE não entram no loop TDD. Corrija apenas se for barato e local; caso contrário, deixe como follow-up.
+
 ### 2. Tracer Bullet
 
 Escreva UM teste que confirma UMA coisa sobre o sistema:
@@ -188,7 +203,16 @@ Quando todas as slices da feature estiverem prontas (todos os critérios da issu
 /open-pr
 ```
 
-`/open-pr` é gated por Pest+Pint, deriva o título dos commits Conventional, e abre PR linkando à issue. Em seguida, `/review-pr` dispara os 4 reviewers em paralelo sobre o diff acumulado.
+`/open-pr` é gated por Pest+Pint, deriva o título dos commits Conventional, e abre PR linkando à issue. Em seguida, rode `/review-pr` **uma vez** para obter o gate consolidado.
+
+Se o review trouxer BLOCKERs:
+
+1. Faça a disposição de cada achado (`ACCEPT_NOW`, `SPLIT_FOLLOW_UP`, `DOC_JUSTIFY`, `REJECT_FALSE_POSITIVE`).
+2. Corrija apenas os `ACCEPT_NOW`.
+3. Rode o menor conjunto de testes/gates que cobre os arquivos afetados.
+4. Reexecute apenas o reviewer relevante quando precisar confirmar a correção; não reinicie a bateria completa por reflexo.
+
+O loop termina quando não há **BLOCKER aceito** pendente e Pest/Pint estão verdes. Não persiga NITs até zero antes de mergear.
 
 > **Auto-revisão antes do `/open-pr`:** consulte [references/reviewer-baseline.md](references/reviewer-baseline.md) — enumera os BLOCKERs típicos por camada que os 4 reviewers vão checar. Fix preventivo agora custa segundos; fix reativo após review custa um round-trip.
 

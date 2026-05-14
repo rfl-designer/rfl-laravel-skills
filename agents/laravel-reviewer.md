@@ -68,6 +68,10 @@ You receive a diff (`git diff <base>..HEAD`) and the project's `AGENTS.md` + `CL
 - Code style (spacing, line length) — that's `pint`
 - Architectural decisions encoded in ADRs — assume they're intentional
 
+## Severity contract
+
+Use BLOCKER only when merging likely creates a user-visible bug, data/security risk, broken authorization/validation, unsafe migration, or production failure. Idiom preferences, small cleanup, and "could be better Laravel" findings are NIT or NICE-TO-HAVE.
+
 ## Output format
 
 Return a single Markdown block with three sections:

@@ -7,6 +7,18 @@ description: Review the current branch's pull request along FOUR axes in paralle
 
 Dispara quatro sub-agents em paralelo sobre o diff do PR atual e consolida o output. Cobre framework Laravel, presentation Livewire/Flux/Alpine, qualidade de testes Pest **e — diferencial crítico — verifica se o código entregue cumpre os acceptance criteria das issues que o PR fecha**.
 
+## Princípio operacional
+
+Review é **gate de merge**, não backlog infinito. O output deve separar risco real de preferência para evitar o ciclo `tdd → review → tdd → review`.
+
+Use esta régua:
+
+- **BLOCKER** — merge inseguro: acceptance criterion faltando, comportamento end-to-end quebrado, bug/regressão provável, risco de dados/segurança, migration irreversível/perigosa, autorização/validação ausente, teste que mascara falha crítica, ou a11y que impede uso básico.
+- **NIT** — vale corrigir, mas não impede merge: idiom Laravel/Livewire melhorável, clareza de teste, PR body incompleto, inconsistência pequena sem risco imediato.
+- **NICE-TO-HAVE** — preferência, melhoria futura, limpeza ou oportunidade arquitetural.
+
+O review deve produzir uma fila triável. Não peça "voltar ao TDD" genericamente; aponte qual blocker aceito exige nova slice comportamental e qual pode ser resolvido com patch mínimo.
+
 ## Pré-requisitos
 
 - `gh` CLI autenticado
@@ -70,14 +82,17 @@ Uma única mensagem com 4 chamadas paralelas via Agent tool:
 Agent #1: laravel-reviewer
   prompt: <stack context> + <diff>
   scope: Application/Persistence (idioms Laravel)
+  severity: BLOCKER somente para risco de merge; preferências ficam como NIT/NICE
 
 Agent #2: livewire-flux-reviewer
   prompt: <stack context> + <diff>
   scope: Presentation (Livewire 4, Flux, Alpine, a11y)
+  severity: BLOCKER somente para UX quebrada, a11y impeditiva, estado incorreto ou regressão provável
 
 Agent #3: pest-test-writer (review mode)
   prompt: <stack context> + <diff>
   scope: Test quality
+  severity: BLOCKER somente quando o teste mascara comportamento crítico ou dá falsa segurança sobre a issue
 
 Agent #4: pr-spec-reviewer  ← O DIFERENCIAL
   prompt:
@@ -94,6 +109,7 @@ Agent #4: pr-spec-reviewer  ← O DIFERENCIAL
     Check: does the PR deliver what each issue's "Acceptance criteria"
     and "What to build" demanded? Flag missing criteria, scope creep,
     or partial implementation.
+    severity: missing acceptance criteria are BLOCKER; adjacent follow-ups are NIT unless they prevent closing the issue.
 ```
 
 **Importante:** uma mensagem com 4 tool calls simultâneas. NÃO serial.
@@ -123,6 +139,15 @@ Fechando: #<I1>, #<I2>
 
 ## 💡 NICE-TO-HAVE
 <consolidados dos 4 reviewers>
+
+## ✅ Disposition Queue
+
+| Achado | Disposição | Próximo passo |
+|---|---|---|
+| Spec #18 missing e-mail notification | ACCEPT_NOW | Nova slice TDD: teste de Notification fake + implementação |
+| Livewire `wire:key` missing | ACCEPT_NOW | Patch mínimo + teste Livewire afetado |
+| PR body sem screenshot | SPLIT_FOLLOW_UP | Não bloqueia merge; anexar se usuário pedir |
+| Sugestão de extrair service | REJECT_FALSE_POSITIVE | Preferência sem risco neste diff |
 
 ---
 
@@ -163,10 +188,21 @@ Fechando: #<I1>, #<I2>
 
 ### 7. Sugestões pós-review
 
-- Se há BLOCKERS de qualquer dimensão → "Resolva antes de mergear."
-- Se há BLOCKERS apenas de Spec → "PR está tecnicamente OK mas incompleto vs issue. Decisão: terminar a slice OU dividir issue para entregar o resto separadamente."
-- Se só há nits/nice-to-have → "Pode mergear. Considere endereçar nits no mesmo PR ou abrir follow-up."
+- Para cada BLOCKER, proponha uma disposição: `ACCEPT_NOW`, `SPLIT_FOLLOW_UP`, `DOC_JUSTIFY`, ou `REJECT_FALSE_POSITIVE`.
+- Se há BLOCKERS aceitos de qualquer dimensão → "Resolva esses antes de mergear", listando o menor teste/gate a rerodar.
+- Se há BLOCKERS apenas de Spec → "PR está tecnicamente OK mas incompleto vs issue. Decisão: terminar a slice OU dividir issue/PR para entregar o resto separadamente."
+- Se só há NIT/NICE-TO-HAVE → "Pode mergear. Não precisa voltar ao TDD; abra follow-up se quiser preservar a sugestão."
 - Se um reviewer detectou padrão recorrente → "Considere virar guideline em `CLAUDE.md`."
+
+### 8. Rerun controlado
+
+Depois de correções, não reexecute o review completo automaticamente. Rode:
+
+- o teste/gate local que cobre o patch;
+- Pint se PHP/Blade mudou;
+- apenas o reviewer cujo BLOCKER foi endereçado, quando a confirmação humana não for suficiente.
+
+Pare quando não houver BLOCKER com disposição `ACCEPT_NOW` pendente. Não bloqueie merge por NIT/NICE.
 
 ## Notas
 

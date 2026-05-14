@@ -82,6 +82,10 @@ These are NITs unless the PR is large enough that a missing description hides th
 - Test quality (asserts, mocks, idioms) — that's `pest-test-writer`
 - Whether tests EXIST is your concern only insofar as the issue's acceptance criteria explicitly demanded a test (e.g., `vendor/bin/pest --filter=...` checkbox)
 
+## Severity contract
+
+Use BLOCKER for missing/partial acceptance criteria, unapproved spec drift, or scope creep substantial enough to make the PR unsafe to merge under the issue it closes. Use NIT for documentation gaps, small adjacent follow-ups, or PR body issues that do not change whether the issue is delivered. Use NICE-TO-HAVE for optional product/architecture improvements.
+
 ## Output format
 
 Per issue:

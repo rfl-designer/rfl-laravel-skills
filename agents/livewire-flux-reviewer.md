@@ -77,6 +77,10 @@ You receive a diff (`git diff <base>..HEAD`) and the project's `AGENTS.md` + `CL
 - Pest tests — that's `pest-test-writer`
 - Code style — that's `pint`
 
+## Severity contract
+
+Use BLOCKER only when merging likely breaks a user workflow, creates incorrect Livewire state, causes a serious accessibility failure, submits/destructively acts by accident, or introduces a meaningful performance/regression risk. Component preference, markup polish, and consistency improvements are NIT or NICE-TO-HAVE.
+
 ## Output format
 
 ```markdown

@@ -64,6 +64,10 @@ When invoked directly (not from `/review-branch`), the user wants you to write t
 6. Prefer integration tests (full HTTP / Livewire roundtrip) over unit tests for behavior.
 7. Use Pest idioms: datasets for parametric, `beforeEach` for shared setup, higher-order sparingly.
 
+## Severity contract
+
+Use BLOCKER only when tests give false confidence about the issue, miss an acceptance criterion that the PR claims to cover, depend on order/global state, or mock/assert implementation so heavily that the behavior could be broken while tests pass. Style, naming, and idiom improvements are NIT or NICE-TO-HAVE.
+
 ## Output format (review mode)
 
 ```markdown
